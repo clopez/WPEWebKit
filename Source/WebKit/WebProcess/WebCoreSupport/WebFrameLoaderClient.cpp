@@ -119,6 +119,11 @@ void WebFrameLoaderClient::dispatchDecidePolicyForNavigationAction(const Navigat
     if (coreFrame)
         documentLoader = WebDocumentLoader::loaderForWebsitePolicies(*coreFrame);
 
+    // PolicyDecisionMode::Synchronous means that it is a FragmentNavigation and in that case we should use documentLoader,
+    // because there can be ongoing (in policy or provisional state) navigation.
+    if (policyDecisionMode == PolicyDecisionMode::Synchronous)
+        documentLoader = static_cast<WebDocumentLoader*>(coreFrame->loader().documentLoader());
+
     auto& mouseEventData = navigationAction.mouseEventData();
     NavigationActionData navigationActionData {
         navigationAction.type(),
